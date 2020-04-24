@@ -1,0 +1,6 @@
+server_timezone: Asia/Jakarta
+repo_url: kambing.ui.ac.id
+first_user: nacita
+sshd_config: /etc/ssh/sshd_config
+sshd: ssh
+host_user: samsul

@@ -1,0 +1,12 @@
+{%   if ansible_distribution == "Ubuntu" %}
+deb http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }} main restricted universe multiverse
+deb http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-security main restricted universe multiverse
+deb http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-updates main restricted universe multiverse
+deb http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-proposed main restricted universe multiverse
+deb http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-backports main restricted universe multiverse
+#deb-src http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }} main restricted universe multiverse
+#deb-src http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-security main restricted universe multiverse
+#deb-src http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-updates main restricted universe multiverse
+#deb-src http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-proposed main restricted universe multiverse
+#deb-src http://{{ repo_url }}/ubuntu {{ ansible_distribution_release|lower }}-backports main restricted universe multiverse
+{%   endif %}
