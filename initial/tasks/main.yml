@@ -1,0 +1,133 @@
+---
+# tasks file for initial
+- name: Backup original sources.list
+  copy:
+    src: /etc/apt/sources.list
+    dest: /etc/apt/sources.list.backup
+    remote_src: yes
+
+- name: Delete original sources.list
+  file:
+    path: /etc/apt/sources.list
+    state: absent
+
+- name: Use sources.list from template
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+
+- name: Install common package from repository
+  apt:
+    name:
+        - ntp
+        - git
+        - htop
+        - curl
+        - vim
+    state: present
+    update_cache: yes
+
+- name: Upgrade all packages to the latest version
+  apt:
+    name: "*"
+    state: latest
+
+- name: Set timezone to "{{ server_timezone }}"
+  timezone:
+    name: "{{ server_timezone }}"
+
+- name: Check if hostname is configured
+  shell: >
+      hostname
+  register: current_hostname
+  changed_when: False
+
+- name: Set hostname to {{ inventory_hostname }} respectively
+  shell: >
+      hostnamectl set-hostname {{ inventory_hostname }}
+  when: current_hostname.stdout != inventory_hostname
+
+- name: Set hostname in /etc/hosts
+  lineinfile:
+    dest: /etc/hosts
+    regexp: "{{ inventory_hostname }}"
+    line: "{{ ansible_host }} {{ inventory_hostname }}"
+    state: present
+
+- name: Make sure we have a 'sudoers' group
+  group:
+    name: sudoers
+    state: present
+
+- name: Allow 'wheel' group to have passwordless sudo
+  lineinfile:
+    dest: /etc/sudoers
+    state: present
+    regexp: '^%sudoers'
+    line: '%sudoers ALL=(ALL) NOPASSWD: ALL'
+    validate: 'visudo -cf %s'
+
+- name: Create user with sudo access
+  user:
+    name: "{{ first_user }}"
+    groups: sudoers
+    generate_ssh_key: yes
+    shell: /bin/bash
+    home: /home/{{ first_user }}
+
+- name: Set authorized key for user ubuntu copying it from current user
+  authorized_key:
+    user: "{{ first_user }}"
+    state: present
+    key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+  register: add_identity_key
+
+- name: Disable empty password login
+  lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "^#?PermitEmptyPasswords"
+    line: "PermitEmptyPasswords no"
+  notify: restart sshd
+
+- name: Disable remote root login
+  lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "^#?PermitRootLogin"
+    line: "PermitRootLogin no"
+  notify: restart sshd
+
+- name: Disable password login
+  lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "^#?PasswordAuthentication "
+    line: "PasswordAuthentication no"
+  when: add_identity_key is succeeded and not add_identity_key is skipped
+  notify: restart sshd
+
+- name: Enable PAM
+  lineinfile:
+    dest: "{{ sshd_config }}"
+    regexp: "^#?UsePAM"
+    line: "UsePAM yes"
+  notify: restart sshd
+
+- name: Add OpenSSH rule in ufw
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Allow all access to tcp port 80
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
+- name: Allow all access to tcp port 443
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: Enable UFW
+  ufw:
+    state: enabled

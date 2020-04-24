@@ -1,0 +1,9 @@
+---
+# main playbook
+- name: Konfigurasi awal server
+  hosts: all
+  remote_user: "{{ host_user }}"
+  become: yes
+  become_user: root
+  roles:
+    - initial

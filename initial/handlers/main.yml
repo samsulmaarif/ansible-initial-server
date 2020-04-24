@@ -1,0 +1,4 @@
+---
+# handlers file for initial
+- name: restart sshd
+  service: name={{ sshd }} state=restarted
