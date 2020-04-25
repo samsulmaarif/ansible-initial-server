@@ -1,0 +1,32 @@
+---
+- name: Backup original sources.list
+  copy:
+    src: /etc/apt/sources.list
+    dest: /etc/apt/sources.list.backup
+    remote_src: yes
+
+- name: Delete original sources.list
+  file:
+    path: /etc/apt/sources.list
+    state: absent
+
+- name: Use sources.list from template
+  template:
+    src: sources.list.j2
+    dest: /etc/apt/sources.list
+
+- name: Install common package from repository
+  apt:
+    name:
+        - ntp
+        - git
+        - htop
+        - curl
+        - vim
+    state: present
+    update_cache: yes
+
+- name: Upgrade all packages to the latest version
+  apt:
+    name: "*"
+    state: latest

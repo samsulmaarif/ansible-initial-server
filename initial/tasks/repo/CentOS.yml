@@ -1,0 +1,26 @@
+---
+- name: Add epel repository
+  yum_repository:
+    name: epel
+    description: EPEL YUM repo
+    baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+
+- name: Install common package from repository
+  yum:
+    name:
+        - chrony
+        - git
+        - htop
+        - curl
+        - vim
+        - firewalld
+        - libselinux-python
+        - selinux-policy
+        - sudo
+    state: present
+    disable_gpg_check: yes
+
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest

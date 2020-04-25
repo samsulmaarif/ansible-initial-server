@@ -1,0 +1,24 @@
+---
+- name: Add OpenSSH rule in firewalld
+  firewalld:
+    port: 22/tcp
+    permanent: yes
+    state: enabled
+
+- name: Allow all access to tcp port 80
+  firewalld:
+    port: 80/tcp
+    permanent: yes
+    state: enabled
+
+- name: Allow all access to tcp port 443
+  firewalld:
+    port: 443/tcp
+    permanent: yes
+    state: enabled
+
+- name: Enable firewalld
+  service:
+    name: firewalld
+    state: started
+    enabled: yes

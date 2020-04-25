@@ -1,0 +1,21 @@
+---
+- name: Add OpenSSH rule in ufw
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Allow all access to tcp port 80
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
+- name: Allow all access to tcp port 443
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: Enable UFW
+  ufw:
+    state: enabled

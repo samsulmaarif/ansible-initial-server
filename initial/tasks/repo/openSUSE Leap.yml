@@ -1,0 +1,21 @@
+---
+- name: Refresh all repository
+  zypper_repository:
+    repo: '*'
+    runrefresh: yes
+
+- name: Install common package from repository
+  zypper:
+    name:
+      - vim
+      - htop
+      - curl
+      - git
+      - chrony
+      - firewalld
+    state: present
+
+- name: Upgrade all package to latest version
+  zypper:
+    name: '*'
+    state: latest
